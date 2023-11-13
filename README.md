@@ -1,4 +1,7 @@
-### Tres en ratlla amb WebSockets i NodeJS
+### Memori amb WebSockets i NodeJS
+
+Practica realitzada per:
+    Isaac Furió
 
 Executar el programa amb:
     
