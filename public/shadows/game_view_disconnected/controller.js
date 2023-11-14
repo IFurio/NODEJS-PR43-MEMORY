@@ -28,18 +28,22 @@ class GameViewDisconnected extends HTMLElement {
     async actionConnect() {
         let server = this.shadow.querySelector('#server').value
         let port = this.shadow.querySelector('#port').value
-        let playerName = this.shadow.querySelector('#playerName').value
+        let playerName = this.shadow.querySelector('#playerName').value.trim()
 
-        connect('ws', server, port)
-
-        document.querySelector('game-ws').showView('game-view-connecting')
-        
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        if (socketConnected) {
-            document.querySelector('game-ws').showView('game-view-playing')
+        if (playerName == "") {
+            this.shadow.querySelector('#feedBack').style.display = "block";
         } else {
-            document.querySelector('game-ws').showView('game-view-disconnected')
+            connect('ws', server, port)
+
+            document.querySelector('game-ws').showView('game-view-connecting')
+            
+            await new Promise(resolve => setTimeout(resolve, 1500))
+
+            if (socketConnected) {
+                document.querySelector('game-ws').showView('game-view-playing')
+            } else {
+                document.querySelector('game-ws').showView('game-view-disconnected')
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ class GameViewPlaying extends HTMLElement {
         this.opponentId = ""  // Conté l'id de l'oponent
         this.gameStatus = "waitingOpponent" 
         this.player = "X"
+        this.playerName = ""
         this.isMyTurn = false
         this.winner = ""
 
@@ -94,7 +95,8 @@ class GameViewPlaying extends HTMLElement {
     }
 
     showInfo () {
-        let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
+        let txt = `Torn de poner nombre de usuario aqui`;
+        // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
         if (this.opponentId != "") {
             txt = txt + ` Playing against: <b>${this.opponentId}</b>`
         }
