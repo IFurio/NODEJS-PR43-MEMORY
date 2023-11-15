@@ -95,7 +95,7 @@ class GameViewPlaying extends HTMLElement {
     }
 
     showInfo () {
-        let txt = `Torn de poner nombre de usuario aqui`;
+        let txt = `Torn de ${this.playerName}`;
         // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
         if (this.opponentId != "") {
             txt = txt + ` Playing against: <b>${this.opponentId}</b>`

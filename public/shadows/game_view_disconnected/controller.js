@@ -33,6 +33,8 @@ class GameViewDisconnected extends HTMLElement {
         if (playerName == "") {
             this.shadow.querySelector('#feedBack').style.display = "block";
         } else {
+            document.querySelector('game-ws').getViewShadow('game-view-playing').playerName = playerName; // set the player name at the object game-view-playing
+
             connect('ws', server, port)
 
             document.querySelector('game-ws').showView('game-view-connecting')
@@ -41,6 +43,7 @@ class GameViewDisconnected extends HTMLElement {
 
             if (socketConnected) {
                 document.querySelector('game-ws').showView('game-view-playing')
+
             } else {
                 document.querySelector('game-ws').showView('game-view-disconnected')
             }
