@@ -17,6 +17,7 @@ class GameViewPlaying extends HTMLElement {
             nextTurn: "X"
         }
         this.opponentId = ""  // Conté l'id de l'oponent
+        this.opponentName = ""
         this.gameStatus = "waitingOpponent" 
         this.player = "X"
         this.playerName = ""
@@ -95,12 +96,19 @@ class GameViewPlaying extends HTMLElement {
     }
 
     showInfo () {
-        let txt = `Torn de ${this.playerName}`;
-        // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-        if (this.opponentId != "") {
-            txt = txt + ` Playing against: <b>${this.opponentId}</b>`
+        if (this.gameStatus == "gameRound") {
+            let txt;
+            if (this.isMyTurn) {
+                txt = `Torn de: "${this.playerName}"`;
+                txt += ` || En espera: "${this.opponentId}"`;
+            } else {
+                txt = `Torn de: "${this.opponentId}"`;
+                txt += ` || En espera: "${this.playerName}"`;
+            }
+            txt += ` || Playing against: <b>${this.opponentId}</b>`
+            // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt
         }
-        this.shadow.querySelector('#connectionInfo').innerHTML = txt
     }
 
     initCanvas () {
@@ -264,6 +272,7 @@ class GameViewPlaying extends HTMLElement {
                     this.isMyTurn = true
                 }
             }
+            this.showInfo()
             break
         }
 

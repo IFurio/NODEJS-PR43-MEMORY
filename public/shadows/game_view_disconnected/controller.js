@@ -33,6 +33,7 @@ class GameViewDisconnected extends HTMLElement {
         if (playerName == "") {
             this.shadow.querySelector('#feedBack').style.display = "block";
         } else {
+            this.shadow.querySelector('#feedBack').style.display = "none";
             document.querySelector('game-ws').getViewShadow('game-view-playing').playerName = playerName; // set the player name at the object game-view-playing
 
             connect('ws', server, port)
