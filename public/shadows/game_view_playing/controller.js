@@ -149,12 +149,12 @@ class GameViewPlaying extends HTMLElement {
         var width = this.canvas.width
 
         // Calculate useful coords and sizes
-        var thirdHorizontal = width / 3
-        var thirdVertical = height / 3
-        var cellSize = Math.min(thirdHorizontal, thirdVertical) - 5
+        var thirdHorizontal = width / 4
+        var thirdVertical = height / 4
+        var cellSize = Math.min(thirdHorizontal, thirdVertical) - 20
         var sixth = cellSize / 2
-        var centerX = width / 2
-        var centerY = height / 2
+        var centerX = width / 2 - 100
+        var centerY = height / 2 - 100
 
         // Set coords
         this.coords.cellSize = cellSize
@@ -166,9 +166,9 @@ class GameViewPlaying extends HTMLElement {
         this.coords.y = centerY - sixth - cellSize
         this.coords.cells = []
 
-        for (var cnt = 0; cnt < 9; cnt++) {
-            var cellRow = cnt % 3
-            var cellCol = Math.floor(cnt / 3)
+        for (var cnt = 0; cnt < 16; cnt++) {
+            var cellRow = cnt % 4
+            var cellCol = Math.floor(cnt / 4)
             var cellX = this.coords.x + (cellRow * cellSize)
             var cellY = this.coords.y + (cellCol * cellSize)
 
@@ -472,7 +472,7 @@ class GameViewPlaying extends HTMLElement {
 
     drawWaitingOpponent (ctx) {
         var text = 'Esperant un oponent...'
-        var x = this.coords.centerX
+        var x = this.coords.centerX + 100
         var y = this.coords.centerY
         this.drawText(ctx, "Arial", 24, "black", "center", text, x, y)
     }

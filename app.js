@@ -77,7 +77,7 @@ ws.onConnection = (socket, id) => {
     matches.push({
       playerX: id, 
       playerO: "", 
-      board: ["", "", "", "", "", "", "", "", ""],
+      board: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
       nextTurn: "X"
       //opponentName: document.querySelector('game-ws').getViewShadow('game-view-playing').playerName assdsssssssssssssssssssssssssssssssssssss
     })
@@ -104,7 +104,7 @@ ws.onConnection = (socket, id) => {
       matches.push({ 
         playerX: id, 
         playerO: "", 
-        board: ["", "", "", "", "", "", "", "", ""],
+        board: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
         nextTurn: "X"
       })
     }
@@ -175,7 +175,10 @@ ws.onMessage = (socket, id, msg) => {
     case "setPlayerName":
       if (matches[idMatch].opponentName != null) {
         matches[idMatch].opponentName2 = obj.value
-        let idOpponent = ""
+      } else {
+        matches[idMatch].opponentName = obj.value
+      }
+      let idOpponent = ""
         if (matches[idMatch].playerX == id) {
           idOpponent = matches[idMatch].playerO
         } else {
@@ -200,9 +203,6 @@ ws.onMessage = (socket, id, msg) => {
             value: matches[idMatch]
           }))
         }
-      } else {
-        matches[idMatch].opponentName = obj.value
-      }
       break
     case "cellOver":
       // Si revem la posició del mouse de qui està jugant, l'enviem al rival
@@ -331,18 +331,18 @@ ws.onClose = (socket, id) => {
     } else {
       
       // Reiniciem el taulell
-      matches[idMatch].board = ["", "", "", "", "", "", "", "", ""]
+      matches[idMatch].board = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
       
       // Esborrar el jugador de la partida
       let rival = ""
       if (matches[idMatch].playerX == id) {
         matches[idMatch].playerX = ""
         rival = matches[idMatch].playerO
-        matches[idMatch].opponentName2 = null
+        delete matches[idMatch].opponentName
       } else {
         matches[idMatch].playerO = ""
         rival = matches[idMatch].playerX
-        matches[idMatch].opponentName = null
+        delete matches[idMatch].opponentName2
       }
 
       // Informar al rival que s'ha desconnectat
@@ -350,6 +350,13 @@ ws.onClose = (socket, id) => {
       if (rivalSocket != null) {
         rivalSocket.send(JSON.stringify({
           type: "opponentDisconnected"
+        }))
+        rivalSocket.send(JSON.stringify({
+          type: "opponentDisconnected"
+        }))
+        socket.send(JSON.stringify({
+          type: "initMatch",
+          value: matches[idMatch]
         }))
       }
     }
