@@ -70,7 +70,7 @@ ws.onConnection = (socket, id) => {
   console.log("WebSocket client connected: " + id)
   idMatch = -1
   playersReady = false
-  
+
   if (matches.length == 0) {
     // Si no hi ha partides, en creem una de nova
     idMatch = 0
@@ -79,6 +79,7 @@ ws.onConnection = (socket, id) => {
       playerO: "", 
       board: ["", "", "", "", "", "", "", "", ""],
       nextTurn: "X"
+      //opponentName: document.querySelector('game-ws').getViewShadow('game-view-playing').playerName assdsssssssssssssssssssssssssssssssssssss
     })
   } else {
     // Si hi ha partides, mirem si n'hi ha alguna en espera de jugador
@@ -86,11 +87,13 @@ ws.onConnection = (socket, id) => {
       if (matches[i].playerX == "") {
         idMatch = i
         matches[i].playerX = id
+        //matches[i].playerXName = document.querySelector('game-ws').getViewShadow('game-view-playing').playerName aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         playersReady = true
         break
       } else if (matches[i].playerO == "") {
         idMatch = i
         matches[i].playerO = id
+        //matches[i].playerOName = document.querySelector('game-ws').getViewShadow('game-view-playing').playerName
         playersReady = true
         break
       }
@@ -169,6 +172,38 @@ ws.onMessage = (socket, id, msg) => {
   // Processar el missatge rebut
   if (idMatch != -1) {
     switch (obj.type) {
+    case "setPlayerName":
+      if (matches[idMatch].opponentName != null) {
+        matches[idMatch].opponentName2 = obj.value
+        let idOpponent = ""
+        if (matches[idMatch].playerX == id) {
+          idOpponent = matches[idMatch].playerO
+        } else {
+          idOpponent = matches[idMatch].playerX
+        }
+        // Recargamos la match para que aparezca el nombre del rival en el caso de que te hayas conectado primero
+        let wsOpponent = ws.getClientById(idOpponent)
+        if (wsOpponent != null) {
+          wsOpponent.send(JSON.stringify({
+            type: "initMatch",
+            value: matches[idMatch]
+          }))
+          // Informem al oponent que toca jugar
+          wsOpponent.send(JSON.stringify({
+            type: "gameRound",
+            value: matches[idMatch]
+          }))
+
+          // Informem al player que toca jugar
+          socket.send(JSON.stringify({
+            type: "gameRound",
+            value: matches[idMatch]
+          }))
+        }
+      } else {
+        matches[idMatch].opponentName = obj.value
+      }
+      break
     case "cellOver":
       // Si revem la posició del mouse de qui està jugant, l'enviem al rival
       playerTurn = matches[idMatch].nextTurn
@@ -303,9 +338,11 @@ ws.onClose = (socket, id) => {
       if (matches[idMatch].playerX == id) {
         matches[idMatch].playerX = ""
         rival = matches[idMatch].playerO
+        matches[idMatch].opponentName2 = null
       } else {
         matches[idMatch].playerO = ""
         rival = matches[idMatch].playerX
+        matches[idMatch].opponentName = null
       }
 
       // Informar al rival que s'ha desconnectat

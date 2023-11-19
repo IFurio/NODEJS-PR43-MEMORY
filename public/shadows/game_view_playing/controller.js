@@ -14,10 +14,11 @@ class GameViewPlaying extends HTMLElement {
             playerX: "",
             playerO: "",
             board: [],
-            nextTurn: "X"
+            nextTurn: "X",
+            opponentName: "",
+            opponentName2: ""
         }
         this.opponentId = ""  // Conté l'id de l'oponent
-        this.opponentName = ""
         this.gameStatus = "waitingOpponent" 
         this.player = "X"
         this.playerName = ""
@@ -100,14 +101,28 @@ class GameViewPlaying extends HTMLElement {
             let txt;
             if (this.isMyTurn) {
                 txt = `Torn de: "${this.playerName}"`;
-                txt += ` || En espera: "${this.opponentId}"`;
+                if (this.player == "X") {
+                    txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
+                    txt += ` || En espera: "${this.match.opponentName2}"`;
+                } else {
+                    txt += ` || Playing against: <b>${this.match.opponentName}</b>`
+                    txt += ` || En espera: "${this.match.opponentName}"`;
+                }   
             } else {
-                txt = `Torn de: "${this.opponentId}"`;
-                txt += ` || En espera: "${this.playerName}"`;
+                if (this.player == "X") {
+                    txt = `Torn de: "${this.match.opponentName2}"`;
+                    txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
+                } else {
+                    txt = `Torn de: "${this.match.opponentName}"`;
+                    txt += ` || Playing against: <b>${this.match.opponentName}</b>`
+                }
+                txt += ` || En espera: "${this.playerName}"`;       
             }
-            txt += ` || Playing against: <b>${this.opponentId}</b>`
+            
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
             this.shadow.querySelector('#connectionInfo').innerHTML = txt
+        } else {
+            this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
     }
 
@@ -240,7 +255,6 @@ class GameViewPlaying extends HTMLElement {
             break
         case "initMatch":
             this.match = obj.value
-            this.showInfo()
             break
         case "opponentDisconnected":
             console.log("opponentDisconnected")

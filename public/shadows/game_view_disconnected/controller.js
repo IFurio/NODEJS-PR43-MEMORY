@@ -32,17 +32,22 @@ class GameViewDisconnected extends HTMLElement {
 
         if (playerName == "") {
             this.shadow.querySelector('#feedBack').style.display = "block";
+
         } else {
             this.shadow.querySelector('#feedBack').style.display = "none";
             document.querySelector('game-ws').getViewShadow('game-view-playing').playerName = playerName; // set the player name at the object game-view-playing
 
-            connect('ws', server, port)
+            connect('ws', server, port, playerName)
 
             document.querySelector('game-ws').showView('game-view-connecting')
             
             await new Promise(resolve => setTimeout(resolve, 1500))
 
             if (socketConnected) {
+                sendServer({
+                    type: "setPlayerName",
+                    value: playerName
+                })
                 document.querySelector('game-ws').showView('game-view-playing')
 
             } else {
