@@ -100,23 +100,23 @@ class GameViewPlaying extends HTMLElement {
         if (this.gameStatus == "gameRound") {
             let txt;
             if (this.isMyTurn) {
-                txt = `Torn de: "${this.playerName}"`;
+                txt = `Turn for: "${this.playerName}"`;
                 if (this.player == "X") {
                     txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
-                    txt += ` || En espera: "${this.match.opponentName2}"`;
+                    txt += ` || On hold: "${this.match.opponentName2}"`;
                 } else {
                     txt += ` || Playing against: <b>${this.match.opponentName}</b>`
-                    txt += ` || En espera: "${this.match.opponentName}"`;
+                    txt += ` || On hold: "${this.match.opponentName}"`;
                 }   
             } else {
                 if (this.player == "X") {
-                    txt = `Torn de: "${this.match.opponentName2}"`;
+                    txt = `Turn for: "${this.match.opponentName2}"`;
                     txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
                 } else {
-                    txt = `Torn de: "${this.match.opponentName}"`;
+                    txt = `Turn for: "${this.match.opponentName}"`;
                     txt += ` || Playing against: <b>${this.match.opponentName}</b>`
                 }
-                txt += ` || En espera: "${this.playerName}"`;       
+                txt += ` || On hold: "${this.playerName}"`;     
             }
             
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
@@ -471,7 +471,7 @@ class GameViewPlaying extends HTMLElement {
     }
 
     drawWaitingOpponent (ctx) {
-        var text = 'Esperant un oponent...'
+        var text = 'Waiting for an opponent...'
         var x = this.coords.centerX + 100
         var y = this.coords.centerY
         this.drawText(ctx, "Arial", 24, "black", "center", text, x, y)
