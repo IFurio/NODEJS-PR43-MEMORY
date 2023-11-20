@@ -126,7 +126,7 @@ class GameViewPlaying extends HTMLElement {
             }
             
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.createNewBoard)
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt
         } else {
             this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
@@ -567,7 +567,7 @@ class GameViewPlaying extends HTMLElement {
         let newBoard = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         let isSetPosition1 = false;
         let isSetPosition2 = false;
-        for (let i = 0; i < newBoard.length;) {
+        for (let i = 1; i <= 8;) {
             let position1;
             let position2;
             if (!isSetPosition1) {
@@ -585,16 +585,18 @@ class GameViewPlaying extends HTMLElement {
                 position2 = Math.floor(randomNumber2);
                 if (newBoard[position2] == 0) {
                     newBoard[position2] = i;
-                    isSetPosition1 = true;
+                    isSetPosition2 = true;
                 }
             }
             if (isSetPosition1 && isSetPosition2) {
                 isSetPosition1 = false;
                 isSetPosition2 = false;
-                i++;
+                ++i;
             }
         }
-        return newBoard;
+        // ojo al hacer esto! no podras saber muchas cosas ya que cambias la logica del original
+        // revisar y pensar en la solucion más idonea
+        this.match.board = newBoard;
     }
 }
 
