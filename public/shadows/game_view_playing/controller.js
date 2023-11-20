@@ -30,6 +30,8 @@ class GameViewPlaying extends HTMLElement {
         this.imgXloaded = false
         this.imgO = null
         this.imgOloaded = false
+        this.imgHoverCat = null
+        this.imgHoverCatLoaded = false
 
         // Funcions per controlar el redibuix i els FPS
         this.reRunLastDrawTime = Date.now();  // Nova propietat per rastrejar l'últim temps de dibuix
@@ -51,6 +53,10 @@ class GameViewPlaying extends HTMLElement {
         this.imgO = new Image()
         this.imgO.src = '/images/imgO.png'
         this.imgO.onload = () => { this.imgOloaded = true }
+
+        this.imgHoverCat = new Image()
+        this.imgHoverCat.src = '/images/catHover.svg'
+        this.imgHoverCat.onload = () => { this.imgHoverCatLoaded = true }
 
         // Carrega els estils CSS
         const style = document.createElement('style')
@@ -120,7 +126,7 @@ class GameViewPlaying extends HTMLElement {
             }
             
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-            this.shadow.querySelector('#connectionInfo').innerHTML = txt
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.createNewBoard)
         } else {
             this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
@@ -512,22 +518,15 @@ class GameViewPlaying extends HTMLElement {
             // Si toca jugar, i el ratolí està sobre la casella, dibuixa la simulació de partida
             if (this.isMyTurn && this.cellOver == cnt && board[cnt] == "") {
                 this.fillRect(ctx, 10, colorOver, cellCoords.x, cellCoords.y, cellSize, cellSize)
-                if (this.player == "X") {
-                   this.drawX(ctx, colorX, cellCoords, cellSize)
-                } else {
-                    this.drawO(ctx, colorO, cellCoords, cellSize)
-                } 
+                if (this.imgHoverCatLoaded) this.drawImage(ctx, this.imgHoverCat, cellCoords, cellSize)
+                else this.drawX(ctx, colorX, cellCoords, cellSize)
             }
 
             // Si no toca jugar i la casella coincideix amb la posició del ratolí de l'oponent, ho dibuixem
             if (!this.isMyTurn && this.cellOpponentOver == cnt) {
-                var cellOverCords = this.coords.cells[this.cellOpponentOver]
                 this.fillRect(ctx, 10, colorOver, cellCoords.x, cellCoords.y, cellSize, cellSize)
-                if (this.player == "X") {
-                   this.drawO(ctx, colorO, cellOverCords, cellSize)
-                } else {
-                    this.drawX(ctx, colorX, cellOverCords, cellSize)
-                } 
+                if (this.imgHoverCatLoaded) this.drawImage(ctx, this.imgHoverCat, cellCoords, cellSize)
+                else this.drawX(ctx, colorX, cellCoords, cellSize)
             }
 
             // Dibuixa el requadre de la casella
@@ -562,6 +561,40 @@ class GameViewPlaying extends HTMLElement {
         var x = cellCoords.x + (cellSize / 2)
         var y = cellCoords.y + (cellSize / 2)
         this.drawCircle(ctx, 10, color, x, y, (cellSize / 2) - padding)
+    }
+
+    createNewBoard() {
+        let newBoard = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let isSetPosition1 = false;
+        let isSetPosition2 = false;
+        for (let i = 0; i < newBoard.length;) {
+            let position1;
+            let position2;
+            if (!isSetPosition1) {
+                var randomNumber = Math.random();
+                randomNumber *= 16;
+                position1 = Math.floor(randomNumber);
+                if (newBoard[position1] == 0) {
+                    newBoard[position1] = i;
+                    isSetPosition1 = true;
+                }
+            }
+            if (!isSetPosition2) {
+                var randomNumber2 = Math.random();
+                randomNumber2 *= 16;
+                position2 = Math.floor(randomNumber2);
+                if (newBoard[position2] == 0) {
+                    newBoard[position2] = i;
+                    isSetPosition1 = true;
+                }
+            }
+            if (isSetPosition1 && isSetPosition2) {
+                isSetPosition1 = false;
+                isSetPosition2 = false;
+                i++;
+            }
+        }
+        return newBoard;
     }
 }
 
