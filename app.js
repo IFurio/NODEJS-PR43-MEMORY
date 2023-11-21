@@ -77,9 +77,11 @@ ws.onConnection = (socket, id) => {
     matches.push({
       playerX: id, 
       playerO: "", 
-      board: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-      nextTurn: "X"
-      //opponentName: document.querySelector('game-ws').getViewShadow('game-view-playing').playerName assdsssssssssssssssssssssssssssssssssssss
+      board: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      nextTurn: "X",
+      cell1: -11,
+      cell2: -11,
+      cellsToDraw: []
     })
   } else {
     // Si hi ha partides, mirem si n'hi ha alguna en espera de jugador
@@ -87,13 +89,11 @@ ws.onConnection = (socket, id) => {
       if (matches[i].playerX == "") {
         idMatch = i
         matches[i].playerX = id
-        //matches[i].playerXName = document.querySelector('game-ws').getViewShadow('game-view-playing').playerName aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         playersReady = true
         break
       } else if (matches[i].playerO == "") {
         idMatch = i
         matches[i].playerO = id
-        //matches[i].playerOName = document.querySelector('game-ws').getViewShadow('game-view-playing').playerName
         playersReady = true
         break
       }
@@ -104,8 +104,11 @@ ws.onConnection = (socket, id) => {
       matches.push({ 
         playerX: id, 
         playerO: "", 
-        board: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-        nextTurn: "X"
+        board: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        nextTurn: "X",
+        cell1: -11,
+        cell2: -11,
+        cellsToDraw: []
       })
     }
   }
@@ -217,6 +220,48 @@ ws.onMessage = (socket, id, msg) => {
           value: obj.value
         }))
       }
+      break
+    case "setBoard":
+      if (matches[idMatch].board[0] == 0) {
+        matches[idMatch].board = obj.value;
+      }
+      break
+    case "cellClick":
+      if (matches[idMatch].cell1 == -11) {
+        matches[idMatch].cell1 = obj.value
+      }
+      else if (matches[idMatch].cell2 == -11) {
+        matches[idMatch].cell2 = obj.value
+      }
+      if (matches[idMatch].cell1 != -11 && matches[idMatch].cell2 != -11) {
+        if (matches[idMatch].board[matches[idMatch].cell1] == matches[idMatch].board[matches[idMatch].cell2]) {
+          matches[idMatch].cellsToDraw.push(matches[idMatch].board[matches[idMatch].cell1])
+          matches[idMatch].cell1 = -11;
+          matches[idMatch].cell2 = -11;
+        }
+      }
+      let idOpponent3 = ""
+        if (matches[idMatch].playerX == id) {
+          idOpponent3 = matches[idMatch].playerO
+        } else {
+          idOpponent3 = matches[idMatch].playerX
+        }
+        // Recargamos la match para que aparezca la nueva img
+        let wsOpponent3 = ws.getClientById(idOpponent3)
+        if (wsOpponent3 != null) {
+          // Informem al oponent que toca jugar
+          wsOpponent3.send(JSON.stringify({
+            type: "gameRound",
+            value: matches[idMatch]
+          }))
+
+          // Informem al player que toca jugar
+          socket.send(JSON.stringify({
+            type: "gameRound",
+            value: matches[idMatch]
+          }))
+        }
+      console.log("hiciste click");
       break
     case "cellChoice":
       // Si rebem la posició de la cel·la triada, actualitzem la partida
@@ -331,7 +376,7 @@ ws.onClose = (socket, id) => {
     } else {
       
       // Reiniciem el taulell
-      matches[idMatch].board = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      matches[idMatch].board = [0, 0]
       
       // Esborrar el jugador de la partida
       let rival = ""

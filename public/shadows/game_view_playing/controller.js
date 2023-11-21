@@ -16,7 +16,10 @@ class GameViewPlaying extends HTMLElement {
             board: [],
             nextTurn: "X",
             opponentName: "",
-            opponentName2: ""
+            opponentName2: "",
+            cell1: -11,
+            cell2: -11,
+            cellsToDraw: []
         }
         this.opponentId = ""  // Conté l'id de l'oponent
         this.gameStatus = "waitingOpponent" 
@@ -32,6 +35,22 @@ class GameViewPlaying extends HTMLElement {
         this.imgOloaded = false
         this.imgHoverCat = null
         this.imgHoverCatLoaded = false
+        this.imgCat1 = null
+        this.imgCat1Loaded = false
+        this.imgCat2 = null
+        this.imgCat2Loaded = false
+        this.imgCat3 = null
+        this.imgCat3Loaded = false
+        this.imgCat4 = null
+        this.imgCat4Loaded = false
+        this.imgCat5 = null
+        this.imgCat5Loaded = false
+        this.imgCat6 = null
+        this.imgCat6Loaded = false
+        this.imgCat7 = null
+        this.imgCat7Loaded = false
+        this.imgCat8 = null
+        this.imgCat8Loaded = false
 
         // Funcions per controlar el redibuix i els FPS
         this.reRunLastDrawTime = Date.now();  // Nova propietat per rastrejar l'últim temps de dibuix
@@ -57,6 +76,38 @@ class GameViewPlaying extends HTMLElement {
         this.imgHoverCat = new Image()
         this.imgHoverCat.src = '/images/catHover.svg'
         this.imgHoverCat.onload = () => { this.imgHoverCatLoaded = true }
+
+        this.imgCat1 = new Image()
+        this.imgCat1.src = '/images/cat1.png'
+        this.imgCat1.onload = () => { this.imgCat1Loaded = true }
+
+        this.imgCat2 = new Image()
+        this.imgCat2.src = '/images/cat2.png'
+        this.imgCat2.onload = () => { this.imgCat2Loaded = true }
+
+        this.imgCat3 = new Image()
+        this.imgCat3.src = '/images/cat3.png'
+        this.imgCat3.onload = () => { this.imgCat3Loaded = true }
+
+        this.imgCat4 = new Image()
+        this.imgCat4.src = '/images/cat4.png'
+        this.imgCat4.onload = () => { this.imgCat4Loaded = true }
+
+        this.imgCat5 = new Image()
+        this.imgCat5.src = '/images/cat5.png'
+        this.imgCat5.onload = () => { this.imgCat5Loaded = true }
+
+        this.imgCat6 = new Image()
+        this.imgCat6.src = '/images/cat6.png'
+        this.imgCat6.onload = () => { this.imgCat6Loaded = true }
+
+        this.imgCat7 = new Image()
+        this.imgCat7.src = '/images/cat7.png'
+        this.imgCat7.onload = () => { this.imgCat7Loaded = true }
+
+        this.imgCat8 = new Image()
+        this.imgCat8.src = '/images/cat8.png'
+        this.imgCat8.onload = () => { this.imgCat8Loaded = true }
 
         // Carrega els estils CSS
         const style = document.createElement('style')
@@ -126,7 +177,7 @@ class GameViewPlaying extends HTMLElement {
             }
             
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-            this.shadow.querySelector('#connectionInfo').innerHTML = txt
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.match.board) + JSON.stringify(this.match.cellsToDraw)
         } else {
             this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
@@ -200,7 +251,7 @@ class GameViewPlaying extends HTMLElement {
 
             if (previousCellOver != this.cellOver) {
 
-                if (this.match.board[this.cellOver] == "") {
+                if (this.match.board[this.cellOver] != -10) {
                     // Si és una casella jugable, canvia el cursor del ratolí
                     this.canvas.style.cursor = 'pointer'
                 } else {
@@ -232,14 +283,15 @@ class GameViewPlaying extends HTMLElement {
             // Utilitza la funció getCell per a obtenir l'índex de la casella
             this.cellOver = this.getCell(x, y)
 
-            if (this.match.board[this.cellOver] != "") {
+            if (this.match.board[this.cellOver] == -10) {
                 this.cellOver = -1
             }    
 
             if (this.cellOver != -1) {
                 // Envia la jugada
                 sendServer({
-                    type: "cellChoice",
+                    type:"cellClick",
+                    //type: "cellChoice",
                     value: this.cellOver
                 })
             }
@@ -258,6 +310,7 @@ class GameViewPlaying extends HTMLElement {
         switch (obj.type) {
         case "socketId":
             this.socketId = obj.value
+            this.createNewBoard();
             break
         case "initMatch":
             this.match = obj.value
@@ -295,6 +348,7 @@ class GameViewPlaying extends HTMLElement {
             this.showInfo()
             break
         }
+        
 
         this.restartRun()
     }
@@ -510,13 +564,29 @@ class GameViewPlaying extends HTMLElement {
             colorOver = "#ccc"
         }
 
+        // Dibuixa el contingut de la casella individualment
+        if (this.match.cell1 != -11) {
+            let catImgLoaded = 'imgCat' + this.match.cell1 + 'Loaded';
+            let catImg = 'imgCat' + this.match.cell1;
+            let cellCoords = this.coords.cells[this.match.cell1]
+            if (this[catImgLoaded]) this.drawImage(ctx, this[catImg], cellCoords, cellSize)
+            else this.drawX(ctx, colorX, cellCoords, cellSize)
+        }
+        if (this.match.cell2 != -11) {
+            let catImgLoaded = 'imgCat' + this.match.cell2 + 'Loaded';
+            let catImg = 'imgCat' + this.match.cell2;
+            let cellCoords = this.coords.cells[this.match.cell2]
+            if (this[catImgLoaded]) this.drawImage(ctx, this[catImg], cellCoords, cellSize)
+            else this.drawX(ctx, colorX, cellCoords, cellSize)
+        }
+
         // Per totes les caselles del tauler
         for (var cnt = 0; cnt < board.length; cnt++) {
             var cell = board[cnt]
             var cellCoords = this.coords.cells[cnt]
 
             // Si toca jugar, i el ratolí està sobre la casella, dibuixa la simulació de partida
-            if (this.isMyTurn && this.cellOver == cnt && board[cnt] == "") {
+            if (this.isMyTurn && this.cellOver == cnt && board[cnt] != 0) {
                 this.fillRect(ctx, 10, colorOver, cellCoords.x, cellCoords.y, cellSize, cellSize)
                 if (this.imgHoverCatLoaded) this.drawImage(ctx, this.imgHoverCat, cellCoords, cellSize)
                 else this.drawX(ctx, colorX, cellCoords, cellSize)
@@ -533,13 +603,12 @@ class GameViewPlaying extends HTMLElement {
             this.drawRect(ctx, 10, colorBoard, cellCoords.x, cellCoords.y, cellSize, cellSize)
 
             // Dibuixa el contingut de la casella
-            if (cell == "X") {
-                if (this.imgXloaded) this.drawImage(ctx, this.imgX, cellCoords, cellSize)
+            let isInCellsToDraw = this.match.cellsToDraw.includes(cell);
+            if (isInCellsToDraw) {
+                let catImgLoaded = 'imgCat' + cell + 'Loaded';
+                let catImg = 'imgCat' + cell;
+                if (this[catImgLoaded]) this.drawImage(ctx, this[catImg], cellCoords, cellSize)
                 else this.drawX(ctx, colorX, cellCoords, cellSize)
-            }
-            if (cell == "O") {
-                if (this.imgOloaded) this.drawImage(ctx, this.imgO, cellCoords, cellSize)
-                else this.drawO(ctx, colorO, cellCoords, cellSize)
             }
         }
     }
@@ -594,9 +663,11 @@ class GameViewPlaying extends HTMLElement {
                 ++i;
             }
         }
-        // ojo al hacer esto! no podras saber muchas cosas ya que cambias la logica del original
-        // revisar y pensar en la solucion más idonea
         this.match.board = newBoard;
+        sendServer({
+            type: "setBoard",
+            value: this.match.board
+        })
     }
 }
 
