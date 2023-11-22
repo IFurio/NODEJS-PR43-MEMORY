@@ -19,7 +19,8 @@ class GameViewPlaying extends HTMLElement {
             opponentName2: "",
             cell1: -11,
             cell2: -11,
-            cellsToDraw: []
+            cellsToDraw: [],
+            showIncorrect: false
         }
         this.opponentId = ""  // Conté l'id de l'oponent
         this.gameStatus = "waitingOpponent" 
@@ -251,7 +252,7 @@ class GameViewPlaying extends HTMLElement {
 
             if (previousCellOver != this.cellOver) {
 
-                if (this.match.board[this.cellOver] != -10) {
+                if (!(this.match.cellsToDraw.includes(this.match.board[this.cellOver]))) {
                     // Si és una casella jugable, canvia el cursor del ratolí
                     this.canvas.style.cursor = 'pointer'
                 } else {
@@ -282,8 +283,8 @@ class GameViewPlaying extends HTMLElement {
             
             // Utilitza la funció getCell per a obtenir l'índex de la casella
             this.cellOver = this.getCell(x, y)
-
-            if (this.match.board[this.cellOver] == -10) {
+            // let isInCellsToDraw = this.match.cellsToDraw.includes(cell);
+            if (this.match.cellsToDraw.includes(this.match.board[this.cellOver])) {
                 this.cellOver = -1
             }    
 
@@ -331,6 +332,11 @@ class GameViewPlaying extends HTMLElement {
         case "gameRound":
             this.gameStatus = "gameRound"
             this.match = obj.value
+
+            if (this.match.showIncorrect) {
+                this.match.showIncorrect = false;
+                this.showIncorrect();
+            }
 
             if (this.match.playerX == this.socketId) {
                 this.player = "X"
@@ -566,15 +572,17 @@ class GameViewPlaying extends HTMLElement {
 
         // Dibuixa el contingut de la casella individualment
         if (this.match.cell1 != -11) {
-            let catImgLoaded = 'imgCat' + this.match.cell1 + 'Loaded';
-            let catImg = 'imgCat' + this.match.cell1;
+            let catValue1 = this.match.board[this.match.cell1]
+            let catImgLoaded = 'imgCat' + catValue1 + 'Loaded';
+            let catImg = 'imgCat' + catValue1;
             let cellCoords = this.coords.cells[this.match.cell1]
             if (this[catImgLoaded]) this.drawImage(ctx, this[catImg], cellCoords, cellSize)
             else this.drawX(ctx, colorX, cellCoords, cellSize)
         }
         if (this.match.cell2 != -11) {
-            let catImgLoaded = 'imgCat' + this.match.cell2 + 'Loaded';
-            let catImg = 'imgCat' + this.match.cell2;
+            let catValue2 = this.match.board[this.match.cell2]
+            let catImgLoaded = 'imgCat' + catValue2 + 'Loaded';
+            let catImg = 'imgCat' + catValue2;
             let cellCoords = this.coords.cells[this.match.cell2]
             if (this[catImgLoaded]) this.drawImage(ctx, this[catImg], cellCoords, cellSize)
             else this.drawX(ctx, colorX, cellCoords, cellSize)
@@ -668,6 +676,14 @@ class GameViewPlaying extends HTMLElement {
             type: "setBoard",
             value: this.match.board
         })
+    }
+
+    showIncorrect() {
+        setTimeout(() => {
+            sendServer({
+                type: "resetCells"
+            })
+          }, "3000");
     }
 }
 

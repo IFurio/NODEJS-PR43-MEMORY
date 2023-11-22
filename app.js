@@ -81,7 +81,8 @@ ws.onConnection = (socket, id) => {
       nextTurn: "X",
       cell1: -11,
       cell2: -11,
-      cellsToDraw: []
+      cellsToDraw: [],
+      showIncorrect: false
     })
   } else {
     // Si hi ha partides, mirem si n'hi ha alguna en espera de jugador
@@ -108,7 +109,8 @@ ws.onConnection = (socket, id) => {
         nextTurn: "X",
         cell1: -11,
         cell2: -11,
-        cellsToDraw: []
+        cellsToDraw: [],
+        showIncorrect: false
       })
     }
   }
@@ -174,6 +176,13 @@ ws.onMessage = (socket, id, msg) => {
 
   // Processar el missatge rebut
   if (idMatch != -1) {
+    let idOpponent = ""
+        if (matches[idMatch].playerX == id) {
+          idOpponent = matches[idMatch].playerO
+        } else {
+          idOpponent = matches[idMatch].playerX
+        }
+    let wsOpponent = ws.getClientById(idOpponent)
     switch (obj.type) {
     case "setPlayerName":
       if (matches[idMatch].opponentName != null) {
@@ -181,14 +190,7 @@ ws.onMessage = (socket, id, msg) => {
       } else {
         matches[idMatch].opponentName = obj.value
       }
-      let idOpponent = ""
-        if (matches[idMatch].playerX == id) {
-          idOpponent = matches[idMatch].playerO
-        } else {
-          idOpponent = matches[idMatch].playerX
-        }
         // Recargamos la match para que aparezca el nombre del rival en el caso de que te hayas conectado primero
-        let wsOpponent = ws.getClientById(idOpponent)
         if (wsOpponent != null) {
           wsOpponent.send(JSON.stringify({
             type: "initMatch",
@@ -238,19 +240,14 @@ ws.onMessage = (socket, id, msg) => {
           matches[idMatch].cellsToDraw.push(matches[idMatch].board[matches[idMatch].cell1])
           matches[idMatch].cell1 = -11;
           matches[idMatch].cell2 = -11;
+        } else {
+          matches[idMatch].showIncorrect = true;
         }
       }
-      let idOpponent3 = ""
-        if (matches[idMatch].playerX == id) {
-          idOpponent3 = matches[idMatch].playerO
-        } else {
-          idOpponent3 = matches[idMatch].playerX
-        }
         // Recargamos la match para que aparezca la nueva img
-        let wsOpponent3 = ws.getClientById(idOpponent3)
-        if (wsOpponent3 != null) {
+        if (wsOpponent != null) {
           // Informem al oponent que toca jugar
-          wsOpponent3.send(JSON.stringify({
+          wsOpponent.send(JSON.stringify({
             type: "gameRound",
             value: matches[idMatch]
           }))
@@ -262,6 +259,34 @@ ws.onMessage = (socket, id, msg) => {
           }))
         }
       console.log("hiciste click");
+      break
+    case "resetCells":
+      if (matches[idMatch].cell1 != -11 && matches[idMatch].cell2 != -11) {
+        matches[idMatch].cell1 = -11
+        matches[idMatch].cell2 = -11
+        matches[idMatch].showIncorrect = false
+
+        if (matches[idMatch].nextTurn == "X") {
+          matches[idMatch].nextTurn = "O"
+        } else {
+          matches[idMatch].nextTurn = "X"
+        }
+
+        // Informem al jugador de la partida
+        socket.send(JSON.stringify({
+          type: "gameRound",
+          value: matches[idMatch]
+        }))
+
+        // Informem al rival de la partida
+        wsOpponent = ws.getClientById(idOpponent)
+          if (wsOpponent != null) {
+            wsOpponent.send(JSON.stringify({
+              type: "gameRound",
+              value: matches[idMatch]
+            }))
+          }
+      }
       break
     case "cellChoice":
       // Si rebem la posició de la cel·la triada, actualitzem la partida
@@ -310,13 +335,13 @@ ws.onMessage = (socket, id, msg) => {
         }))
 
         // Informem al rival de la partida
-        let idOpponent = ""
+        idOpponent = ""
         if (matches[idMatch].playerX == id) {
           idOpponent = matches[idMatch].playerO
         } else {
           idOpponent = matches[idMatch].playerX
         }
-        let wsOpponent = ws.getClientById(idOpponent)
+        wsOpponent = ws.getClientById(idOpponent)
         if (wsOpponent != null) {
           wsOpponent.send(JSON.stringify({
             type: "gameRound",
@@ -376,7 +401,11 @@ ws.onClose = (socket, id) => {
     } else {
       
       // Reiniciem el taulell
-      matches[idMatch].board = [0, 0]
+      matches[idMatch].board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      matches[idMatch].cellsToDraw = []
+      matches[idMatch].cell1 = -11
+      matches[idMatch].cell2 = -11
+      matches[idMatch].showIncorrect = false
       
       // Esborrar el jugador de la partida
       let rival = ""
