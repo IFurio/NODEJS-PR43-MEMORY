@@ -253,7 +253,7 @@ ws.onMessage = (socket, id, msg) => {
           matches[idMatch].cell1 = -11;
           matches[idMatch].cell2 = -11;
           // Check if all the images are already showed
-          if (matches[idMatch].cellsToDraw.length == 7) {
+          if (matches[idMatch].cellsToDraw.length == 8) {
             isAllSet = true
             for (let i = 1; i <= matches[idMatch].cellsToDraw.length; i++) {
               if (!(matches[idMatch].cellsToDraw.includes(i))) {
@@ -397,7 +397,6 @@ ws.onMessage = (socket, id, msg) => {
             value: matches[idMatch]
           }))
         }
-
       } else {
         // Si hi ha guanyador o empat, acabem la partida
 

@@ -161,27 +161,29 @@ class GameViewPlaying extends HTMLElement {
         if (this.gameStatus == "gameRound") {
             let txt;
             if (this.isMyTurn) {
-                txt = `Turn for: "${this.playerName}"`;
                 if (this.player == "X") {
-                    txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
-                    txt += ` || On hold: "${this.match.opponentName2}"`;
+                    txt = `Turn for: "${this.playerName}", Points:"${this.match.playerXPoints}"`;
+                    txt += ` || Playing against: "${this.match.opponentName2}"`
+                    txt += ` || On hold: "${this.match.opponentName2}", Points:"${this.match.playerOPoints}"`;
                 } else {
-                    txt += ` || Playing against: <b>${this.match.opponentName}</b>`
-                    txt += ` || On hold: "${this.match.opponentName}"`;
+                    txt = `Turn for: "${this.playerName}", Points:"${this.match.playerOPoints}"`;
+                    txt += ` || Playing against: "${this.match.opponentName}"`
+                    txt += ` || On hold: "${this.match.opponentName}", Points:"${this.match.playerXPoints}"`;
                 }   
             } else {
                 if (this.player == "X") {
-                    txt = `Turn for: "${this.match.opponentName2}"`;
-                    txt += ` || Playing against: <b>${this.match.opponentName2}</b>`
+                    txt = `Turn for: "${this.match.opponentName2}", Points:"${this.match.playerOPoints}"`;
+                    txt += ` || Playing against: "${this.match.opponentName2}"`;
+                    txt += ` || On hold: "${this.playerName}", Points:"${this.match.playerXPoints}"`;
                 } else {
-                    txt = `Turn for: "${this.match.opponentName}"`;
-                    txt += ` || Playing against: <b>${this.match.opponentName}</b>`
-                }
-                txt += ` || On hold: "${this.playerName}"`;     
+                    txt = `Turn for: "${this.match.opponentName}", Points:"${this.match.playerXPoints}"`;
+                    txt += ` || Playing against: "${this.match.opponentName}"`;
+                    txt += ` || On hold: "${this.playerName}", Points:"${this.match.playerOPoints}"`;
+                }     
             }
-            
+
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.match.board) + JSON.stringify(this.match.cellsToDraw) + this.match.playerXPoints + this.match.playerOPoints
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.match.board) + JSON.stringify(this.match.cellsToDraw)
         } else {
             this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
@@ -286,7 +288,7 @@ class GameViewPlaying extends HTMLElement {
             
             // Utilitza la funció getCell per a obtenir l'índex de la casella
             this.cellOver = this.getCell(x, y)
-            // let isInCellsToDraw = this.match.cellsToDraw.includes(cell);
+            
             if (this.match.cellsToDraw.includes(this.match.board[this.cellOver])) {
                 this.cellOver = -1
             }    
