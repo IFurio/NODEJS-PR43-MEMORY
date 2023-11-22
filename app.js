@@ -82,7 +82,9 @@ ws.onConnection = (socket, id) => {
       cell1: -11,
       cell2: -11,
       cellsToDraw: [],
-      showIncorrect: false
+      showIncorrect: false,
+      playerXPoints: 0,
+      playerOPoints: 0
     })
   } else {
     // Si hi ha partides, mirem si n'hi ha alguna en espera de jugador
@@ -110,7 +112,9 @@ ws.onConnection = (socket, id) => {
         cell1: -11,
         cell2: -11,
         cellsToDraw: [],
-        showIncorrect: false
+        showIncorrect: false,
+        playerXPoints: 0,
+        playerOPoints: 0
       })
     }
   }
@@ -229,6 +233,7 @@ ws.onMessage = (socket, id, msg) => {
       }
       break
     case "cellClick":
+      let isAllSet = false;
       if (matches[idMatch].cell1 == -11) {
         matches[idMatch].cell1 = obj.value
       }
@@ -238,12 +243,53 @@ ws.onMessage = (socket, id, msg) => {
       if (matches[idMatch].cell1 != -11 && matches[idMatch].cell2 != -11) {
         if (matches[idMatch].board[matches[idMatch].cell1] == matches[idMatch].board[matches[idMatch].cell2]) {
           matches[idMatch].cellsToDraw.push(matches[idMatch].board[matches[idMatch].cell1])
+          // Sum the points to the current player
+          if (matches[idMatch].playerX == id) {
+            matches[idMatch].playerXPoints += 1
+          } else {
+            matches[idMatch].playerOPoints += 1
+          }
+          // Reset the recived cells
           matches[idMatch].cell1 = -11;
           matches[idMatch].cell2 = -11;
+          // Check if all the images are already showed
+          isAllSet = true
+          for (let i = 1; i <= matches[idMatch].cellsToDraw.length; i++) {
+            if (!(matches[idMatch].cellsToDraw.includes(i))) {
+              isAllSet = false;
+              break;
+            }
+          }        
         } else {
           matches[idMatch].showIncorrect = true;
         }
       }
+      if (isAllSet) { // Send gameOver. All the cells have been showed
+        let playerXPoints = matches[idMatch].playerXPoints
+        let playerOPoints = matches[idMatch].playerOPoints
+        let winner = matches[idMatch].opponentName;
+        if (playerOPoints > playerXPoints) {
+          winner = matches[idMatch].opponentName2;
+        }
+        else if (playerXPoints == playerOPoints) {
+          winner = "";
+        }
+        if (wsOpponent != null) {
+          // Informem al oponent que toca jugar
+          wsOpponent.send(JSON.stringify({
+            type: "gameOver",
+            value: matches[idMatch],
+            winner: winner
+          }))
+
+          // Informem al player que toca jugar
+          socket.send(JSON.stringify({
+            type: "gameOver",
+            value: matches[idMatch],
+            winner: winner
+          }))
+        }
+      } else {
         // Recargamos la match para que aparezca la nueva img
         if (wsOpponent != null) {
           // Informem al oponent que toca jugar
@@ -258,6 +304,7 @@ ws.onMessage = (socket, id, msg) => {
             value: matches[idMatch]
           }))
         }
+      }
       console.log("hiciste click");
       break
     case "resetCells":
@@ -406,6 +453,8 @@ ws.onClose = (socket, id) => {
       matches[idMatch].cell1 = -11
       matches[idMatch].cell2 = -11
       matches[idMatch].showIncorrect = false
+      matches[idMatch].playerXPoints = 0
+      matches[idMatch].playerOPoints = 0
       
       // Esborrar el jugador de la partida
       let rival = ""

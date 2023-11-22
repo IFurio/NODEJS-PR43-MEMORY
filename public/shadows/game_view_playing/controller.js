@@ -20,7 +20,9 @@ class GameViewPlaying extends HTMLElement {
             cell1: -11,
             cell2: -11,
             cellsToDraw: [],
-            showIncorrect: false
+            showIncorrect: false,
+            playerXPoints: 0,
+            playerOPoints: 0
         }
         this.opponentId = ""  // Conté l'id de l'oponent
         this.gameStatus = "waitingOpponent" 
@@ -145,6 +147,7 @@ class GameViewPlaying extends HTMLElement {
     }
 
     async actionDisconnect () {
+        this.match.cellsToDraw = []
         disconnect()
     }
 
@@ -178,7 +181,7 @@ class GameViewPlaying extends HTMLElement {
             }
             
             // let txt = `Connected to <b>${socket.url}</b>, with ID <b>${this.socketId}</b>.`
-            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.match.board) + JSON.stringify(this.match.cellsToDraw)
+            this.shadow.querySelector('#connectionInfo').innerHTML = txt + JSON.stringify(this.match.board) + JSON.stringify(this.match.cellsToDraw) + this.match.playerXPoints + this.match.playerOPoints
         } else {
             this.shadow.querySelector('#connectionInfo').innerHTML = ""
         }
