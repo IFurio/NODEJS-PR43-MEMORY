@@ -253,13 +253,15 @@ ws.onMessage = (socket, id, msg) => {
           matches[idMatch].cell1 = -11;
           matches[idMatch].cell2 = -11;
           // Check if all the images are already showed
-          isAllSet = true
-          for (let i = 1; i <= matches[idMatch].cellsToDraw.length; i++) {
-            if (!(matches[idMatch].cellsToDraw.includes(i))) {
-              isAllSet = false;
-              break;
-            }
-          }        
+          if (matches[idMatch].cellsToDraw.length == 7) {
+            isAllSet = true
+            for (let i = 1; i <= matches[idMatch].cellsToDraw.length; i++) {
+              if (!(matches[idMatch].cellsToDraw.includes(i))) {
+                isAllSet = false;
+                break;
+              }
+            } 
+          }
         } else {
           matches[idMatch].showIncorrect = true;
         }
